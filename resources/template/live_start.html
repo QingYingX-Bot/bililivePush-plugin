@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直播开播通知</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            margin: 0;
+            padding: 32px 20px;
+            background: #000000;
+            min-height: 100vh;
+        }
+        .container {
+            position: relative;
+            display: block;
+            max-width: 100%;
+            width: 100%;
+        }
+        .header {
+            margin-bottom: 24px;
+            font-size: 32px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+        .cover-background {
+            position: relative;
+            display: block;
+            max-width: 100%;
+            width: 100%;
+        }
+        .cover-wrapper {
+            text-align: center;
+            overflow: hidden;
+            border-radius: 20px;
+        }
+        .cover {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            display: inline-block;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        .content {
+            margin-top: 24px;
+            padding: 24px 28px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            width: 100%;
+            text-align: left;
+        }
+        .info-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .info-item {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-size: 20px;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.8);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .info-value {
+            font-size: 20px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+            word-break: break-all;
+            flex: 1;
+            min-width: 0;
+        }
+        /* 如果没有封面图时的样式 */
+        .no-cover {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            min-width: 600px;
+            min-height: 500px;
+            display: block;
+        }
+        .no-cover .cover {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">开播咯~</div>
+        <div class="cover-background">
+            {{if cover_from_user}}
+            <div class="cover-wrapper">
+                <img src="{{cover_from_user}}" alt="直播封面" class="cover" onerror="this.parentElement.parentElement.classList.add('no-cover')">
+            </div>
+            {{/if}}
+            <div class="content">
+                <div class="info-wrapper">
+                    <div class="info-item">
+                        <span class="info-label">主播:</span>
+                        <span class="info-value">{{uname}}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">标题:</span>
+                        <span class="info-value">{{title}}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">分区:</span>
+                        <span class="info-value">{{area_v2_parent_name}} - {{area_v2_name}}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">开播时间:</span>
+                        <span class="info-value">{{live_time}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

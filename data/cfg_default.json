@@ -1,0 +1,10 @@
+{
+	"user": {
+		"sleep": 0,
+		"endPush": true,
+		"forward": false,
+		"htmlTemplate": true
+	},
+	"rePush": false,
+	"trigger": ""
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直播下播通知</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            margin: 0;
+            padding: 32px 20px;
+            background: #000000;
+            min-height: 100vh;
+        }
+        .container {
+            position: relative;
+            display: block;
+            max-width: 100%;
+            width: 100%;
+        }
+        .header {
+            margin-bottom: 24px;
+            font-size: 32px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+        .cover-background {
+            position: relative;
+            display: block;
+            max-width: 100%;
+            width: 100%;
+        }
+        .cover-wrapper {
+            text-align: center;
+            overflow: hidden;
+            border-radius: 20px;
+        }
+        .cover {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            display: inline-block;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        .content {
+            margin-top: 24px;
+            padding: 24px 28px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            width: 100%;
+            text-align: left;
+        }
+        .duration-wrapper {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+        }
+        .duration-label {
+            font-size: 20px;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.8);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .duration {
+            font-size: 20px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+        /* 如果没有封面图时的样式 */
+        .no-cover {
+            background: linear-gradient(135deg, #64748b 0%, #475569 50%, #334155 100%);
+            min-width: 600px;
+            min-height: 500px;
+            display: block;
+        }
+        .no-cover .cover {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">下播咯~</div>
+        <div class="cover-background">
+            {{if cover_from_user}}
+            <div class="cover-wrapper">
+                <img src="{{cover_from_user}}" alt="直播封面" class="cover" onerror="this.parentElement.parentElement.classList.add('no-cover')">
+            </div>
+            {{/if}}
+            <div class="content">
+                <div class="duration-wrapper">
+                    <span class="duration-label">本次直播时长:</span>
+                    <span class="duration">{{liveDuration}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
