@@ -9,8 +9,13 @@ export default function (path, params, cfg) {
   if (!e.runtime) {
     return console.log('未找到e.runtime，请升级至最新版Yunzai')
   }
+  // 优先使用 cfg.retType，如果没有则根据 cfg.retMsgId 判断
+  let retType = cfg.retType
+  if (!retType) {
+    retType = cfg.retMsgId ? 'msgId' : 'default'
+  }
   return e.runtime.render(pluginName, path, params, {
-    retType: cfg.retMsgId ? 'msgId': 'default',
+    retType: retType,
     beforeRender ( {
       data
     }) {

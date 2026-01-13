@@ -59,48 +59,26 @@ class Bili {
   }
 
   listLiveData(data) {
-    const {
-      group_id,
-      user_id
-    } = data
-    const byGroup = (group_id) => {
-      const livedata = this.getLiveData()?.data
-      const result = []
-      for (const {room_id, uid, group} of Object.values(livedata)) {
-        if (group[group_id]) {
-          result.push({
-            room_id,
-            uid,
-            users: group[group_id]
-          })
-        }
-      }
-      return result
+    const { group_id, user_id } = data
+    const livedata = this.getLiveData()?.data || {}
+    
+    if (group_id) {
+      return Object.values(livedata)
+        .filter(({ group }) => group[group_id])
+        .map(({ room_id, uid, group }) => ({ room_id, uid, users: group[group_id] }))
     }
-    const byUser = (user_id) => {
-      const livedata = this.getLiveData()?.data
-      const result = []
-      for (const {room_id, uid, group} of Object.values(livedata)) {
-        if (group) {
-          const groupsInRoom = []
-          for (const [group_id, users] of Object.entries(group)) {
-            if (users.includes(user_id)) {
-              groupsInRoom.push(group_id)
-            }
-          }
-          if (groupsInRoom.length > 0) {
-            result.push({
-              room_id,
-              uid,
-              groups: groupsInRoom
-            })
-          }
-        }
-      }
-      return result
+    
+    if (user_id) {
+      return Object.values(livedata)
+        .map(({ room_id, uid, group }) => {
+          const groupsInRoom = Object.entries(group || {})
+            .filter(([, users]) => users.includes(user_id))
+            .map(([gid]) => gid)
+          return groupsInRoom.length > 0 ? { room_id, uid, groups: groupsInRoom } : null
+        })
+        .filter(Boolean)
     }
-    if (group_id) return byGroup(group_id)
-    if (user_id) return byUser(user_id)
+    
     return false
   }
 
@@ -110,60 +88,28 @@ class Bili {
     return items.map(item => {
       const data = ret?.[item.uid]
       if (!data) return
-      return { ...item, ...data }
+      // 确保 cover_from_user 字段存在，如果不存在则使用 user_cover
+      const result = { ...item, ...data }
+      if (!result.cover_from_user && result.user_cover) {
+        result.cover_from_user = result.user_cover
+      }
+      return result
     }).filter(item => !!item)
   }
 
   async getRoomInfo(room_id) {
-    const {
-      uid,
-      online,
-      live_status,
-      user_cover,
-      live_time,
-      title
-    } = await BApi.getRoomInfo(room_id)
-    const {
-      uname,
-      face
-    } = await BApi.getRoomInfobyUid(uid)
-    return {
-      uid,
-      room_id,
-      online,
-      live_status,
-      user_cover,
-      live_time,
-      title,
-      uname,
-      face
-    }
+    const basicInfo = await BApi.getRoomInfo(room_id)
+    if (!basicInfo) return false
+    const { uname, face } = await BApi.getRoomInfobyUid(basicInfo.uid) || {}
+    return { ...basicInfo, uname, face }
   }
 
   async getRoomInfoByUid(uid) {
-    const {
-      room_id,
-      uname,
-      face
-    } = await BApi.getRoomInfobyUid(uid)
-    const {
-      online,
-      live_status,
-      user_cover,
-      live_time,
-      title
-    } = await BApi.getRoomInfo(room_id)
-    return {
-      uid,
-      room_id,
-      online,
-      live_status,
-      user_cover,
-      live_time,
-      title,
-      uname,
-      face
-    }
+    const userInfo = await BApi.getRoomInfobyUid(uid)
+    if (!userInfo?.room_id) return false
+    const roomInfo = await BApi.getRoomInfo(userInfo.room_id)
+    if (!roomInfo) return false
+    return { ...roomInfo, ...userInfo }
   }
 }
 

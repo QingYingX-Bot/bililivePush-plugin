@@ -41,10 +41,9 @@ export class update extends plugin {
   }
 
   async update_log() {
-    let Update_Plugin = new Update()
+    const Update_Plugin = new Update()
     Update_Plugin.e = this.e
     Update_Plugin.reply = this.reply
-
     if (Update_Plugin.getPlugin(pluginName)) {
       this.e.reply(await Update_Plugin.getLog(pluginName))
     }

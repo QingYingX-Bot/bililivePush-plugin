@@ -37,16 +37,15 @@ let Data = {
     })
   },
 
-  read (file = '',
-    root = '') {
+  read (file = '', root = '') {
     root = getRoot(root)
-    const filePath = path.join(root,
-      file)
+    const filePath = path.join(root, file)
     if (!fs.existsSync(filePath)) return ''
     try {
       return fs.readFileSync(filePath, 'utf8')
     } catch (e) {
-      console.log(e)
+      logger.error('读取文件失败', e)
+      return ''
     }
   },
 
@@ -62,12 +61,12 @@ let Data = {
   * */
   readJSON (file = '', root = '') {
     try {
-      let fileContent = Data.read(`${file}.json`, root) || "{}"
+      const fileContent = Data.read(`${file}.json`, root) || "{}"
       return JSON.parse(fileContent)
     } catch (e) {
-      console.log(e)
+      logger.error('读取JSON失败', e)
+      return {}
     }
-    return {}
   },
 
   /*
@@ -79,14 +78,12 @@ let Data = {
 
   async getCacheJSON (key) {
     try {
-      let txt = await redis.get(key)
-      if (txt) {
-        return JSON.parse(txt)
-      }
+      const txt = await redis.get(key)
+      return txt ? JSON.parse(txt) : {}
     } catch (e) {
-      console.log(e)
+      logger.error('获取缓存JSON失败', e)
+      return {}
     }
-    return {}
   },
 
   async setCacheJSON (key, data, EX = 3600 * 24 * 90) {
@@ -101,19 +98,18 @@ let Data = {
       file = file + '.js'
     }
     const filePath = path.join(root, file)
-    if (fs.existsSync(filePath)) {
-      try {
-        let data = await import(`file://${filePath}?t=${new Date() * 1}`)
-        return data || {}
-      } catch (e) {
-        console.log(e)
-      }
+    if (!fs.existsSync(filePath)) return {}
+    try {
+      const data = await import(`file://${filePath}?t=${Date.now()}`)
+      return data || {}
+    } catch (e) {
+      logger.error('导入模块失败', e)
+      return {}
     }
-    return {}
   },
 
   async importDefault (file, root) {
-    let ret = await Data.importModule(file, root)
+    const ret = await Data.importModule(file, root)
     return ret.default || {}
   },
 
@@ -122,17 +118,14 @@ let Data = {
   },
 
   async importCfg (key) {
-    let sysCfg = await Data.importModule(path.join('config', 'system', `${key}_system.js`))
+    const sysCfg = await Data.importModule(path.join('config', 'system', `${key}_system.js`))
     let diyCfg = await Data.importModule(path.join('config', `${key}.js`))
     if (diyCfg.isSys) {
-      console.error(`${pluginName}: config/${key}.js无效，已忽略`)
-      console.error(`如需配置请复制config/${key}_default.js为config/${key}.js，请勿复制config/system下的系统文件`)
+      logger.error(`${pluginName}: config/${key}.js无效，已忽略`)
+      logger.error(`如需配置请复制config/${key}_default.js为config/${key}.js，请勿复制config/system下的系统文件`)
       diyCfg = {}
     }
-    return {
-      sysCfg,
-      diyCfg
-    }
+    return { sysCfg, diyCfg }
   },
 
   /*

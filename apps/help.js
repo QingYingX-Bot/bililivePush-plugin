@@ -28,34 +28,25 @@ export class help extends plugin {
   }
 
   async help (e) {
-    let helpGroup = []
-
-    lodash.forEach(helpList, (group) => {
-      if (group.auth && group.auth === 'master' && !e.isMaster) {
-        return true
-      }
-
-      lodash.forEach(group.list, (help) => {
-        let icon = help.icon * 1
-        if (!icon) {
-          help.css = 'display:none'
-        } else {
-          let x = (icon - 1) % 10
-          let y = (icon - x - 1) / 10
-          help.css = `background-position:-${x * 50}px -${y * 50}px`
-        }
-      })
-
-      helpGroup.push(group)
-    })
-    let themeData = await HelpTheme.getThemeData(helpCfg)
+    const helpGroup = helpList
+      .filter(group => !(group.auth === 'master' && !e.isMaster))
+      .map(group => ({
+        ...group,
+        list: group.list.map(help => {
+          const icon = help.icon * 1
+          return {
+            ...help,
+            css: icon ? `background-position:-${((icon - 1) % 10) * 50}px -${Math.floor((icon - 1) / 10) * 50}px` : 'display:none'
+          }
+        })
+      }))
+    
+    const themeData = await HelpTheme.getThemeData(helpCfg)
     return await render('help/index', {
-      helpCfg: helpCfg,
+      helpCfg,
       helpGroup,
       ...themeData,
       element: 'default'
-    }, {
-      e, scale: 1.2
-    })
+    }, { e, scale: 1.2 })
   }
 }

@@ -11,24 +11,17 @@ const _cfgPath = join(pluginRoot, "data")
 let cfg = {}
 
 const loadConfig = () => {
-  let defCfg = {}
-  let userCfg = {}
   try {
-    defCfg = JSON.parse(fs.readFileSync(join(_cfgPath, "cfg_default.json"), "utf8")) || {}
-    if (fs.existsSync(join(_cfgPath, "cfg.json"))) {
-      userCfg = JSON.parse(fs.readFileSync(join(_cfgPath, "cfg.json"), "utf8")) || {}
+    const defCfg = JSON.parse(fs.readFileSync(join(_cfgPath, "cfg_default.json"), "utf8")) || {}
+    const userCfg = fs.existsSync(join(_cfgPath, "cfg.json")) 
+      ? JSON.parse(fs.readFileSync(join(_cfgPath, "cfg.json"), "utf8")) || {}
+      : {}
+    cfg = lodash.merge({}, defCfg, userCfg)
+    if (cfg.special?.[0]) {
+      cfg.override = Object.fromEntries(cfg.special.map(({ key, ...rest }) => [key, rest]))
     }
   } catch (e) {
     logger.warn("读取配置文件失败", e)
-  }
-  cfg = lodash.merge({}, defCfg, userCfg)
-  if (cfg.special?.[0]) {
-    cfg.override = Object.fromEntries(
-      cfg.special.map(({
-        key,
-        ...rest
-      }) => [key, rest])
-    )
   }
 }
 
