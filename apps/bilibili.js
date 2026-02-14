@@ -250,6 +250,8 @@ export default class bilibili extends plugin {
     }
     const htmlMessage = await this._processHtmlTemplate('template/live_start', templateData, renderE, userMentions)
     if (htmlMessage) {
+      // 在图片消息后附带直播间链接，合并为一条消息发送
+      htmlMessage.push(`\n直播间地址: https://live.bilibili.com/${room_id}`)
       Bot.pickGroup(Number(groupId)).sendMsg(htmlMessage)
       return
     }
@@ -276,13 +278,15 @@ export default class bilibili extends plugin {
 
   // 发送下播消息
   async sendLiveEndMessage(groupId, roomInfo, liveDuration, renderE) {
-    const { cover_from_user, user_cover } = roomInfo
+    const { cover_from_user, user_cover, room_id } = roomInfo
     
     // 尝试使用 HTML 模板
     const coverImage = cover_from_user || user_cover
     const templateData = { cover_from_user: coverImage, liveDuration }
     const htmlMessage = await this._processHtmlTemplate('template/live_end', templateData, renderE)
     if (htmlMessage) {
+      // 在图片消息后附带直播间链接，合并为一条消息发送
+      htmlMessage.push(`\n直播间地址: https://live.bilibili.com/${room_id}`)
       Bot.pickGroup(Number(groupId)).sendMsg(htmlMessage)
       return
     }
